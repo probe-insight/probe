@@ -24,7 +24,7 @@
   flex: 1;
   text-align: center;
   backdrop-filter: blur(4px);
-  background-color: rgba(0, 0, 0, .7);
+  background-color: rgba(0, 10, 20, .7);
   /*background: rgb(from var(--mui-palette-background-paper) r g b / .7)*/
 }
 

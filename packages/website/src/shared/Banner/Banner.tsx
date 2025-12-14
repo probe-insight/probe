@@ -3,6 +3,7 @@ import {m} from '@/i18n'
 import {Button} from '@mui/material'
 import {AnimatedText} from '@/shared/AnimatedText'
 import {Pulse} from '@/shared/Pulse'
+import {AppTitle} from '@infoportal/client-core/server'
 
 export const Banner = () => {
   return (
@@ -18,7 +19,7 @@ export const Banner = () => {
         {/*/>*/}
         <div className={style.content}>
           <div>
-            <AnimatedText text={m.title} className={style.title} />
+            <AppTitle sx={{fontSize: '4.5rem', color: '#cdfffe'}} />
             <div className={style.desc}>{m.desc}</div>
             <Pulse>
               <Button variant="contained" size="large">

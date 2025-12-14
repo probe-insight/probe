@@ -1,8 +1,9 @@
-// —
+const appName = 'NexusPortal'
 export const m = {
-  title: 'InfoPortal',
+  title: appName,
   desc: 'The next generation of data collection & management software.',
   cta: 'Try for free',
+  logoAlt: appName + ' logo',
   blog: 'Blog',
   highlights: {
     centralized: {

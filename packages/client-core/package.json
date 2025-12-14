@@ -2,12 +2,20 @@
   "name": "@infoportal/client-core",
   "type": "module",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "lib"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/index.server.d.ts",
+      "default": "./dist/index.server.js"
+    }
+  },
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc -b"

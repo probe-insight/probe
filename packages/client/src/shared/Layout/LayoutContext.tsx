@@ -2,6 +2,7 @@ import * as React from 'react'
 import {createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useMemo, useState} from 'react'
 import {useEffectFn} from '@axanc/react-hooks'
 import {Breakpoint, useTheme} from '@mui/material'
+import {useI18n} from '@infoportal/client-i18n'
 
 const LayoutContext = createContext<UseLayoutContextProps>({} as UseLayoutContextProps)
 
@@ -32,6 +33,7 @@ export const LayoutProvider = ({
   mobileBreakpoint = 760,
   children,
 }: LayoutProviderProps) => {
+  const {m} = useI18n()
   const [title, setTitle] = useState(_title)
   const [pageWidth, setPageWidth] = useState(getWidth())
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -51,11 +53,11 @@ export const LayoutProvider = ({
   useEffectFn(_title, setTitle)
 
   useEffect(() => {
-    document.title = (process.env.NODE_ENV === 'development' ? '🖥️' : '') + (title ? title + ' - ' : '') + 'InfoPortal'
+    document.title = (process.env.NODE_ENV === 'development' ? '🖥️' : '') + (title ? title + ' - ' : '') + m.appTitle
     window.addEventListener('resize', () => setPageWidth(getWidth()))
     // TODO looks needed when duplicate tab, must be verified
     setPageWidth(getWidth())
-  }, [])
+  }, [title])
 
   return (
     <LayoutContext.Provider

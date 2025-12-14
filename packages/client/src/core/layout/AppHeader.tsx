@@ -65,13 +65,13 @@ export const AppHeader = ({workspaceId, children, sx, id = 'aa-header-id', ...pr
           }}
         >
           {showSidebarButton && <ToggleSidebarButton />}
-          <IpLogo height={26} />
-          {/*<Box component="img" src="/ip-logo.svg" height={30} alt="InfoPortal Logo" {...props} />*/}
+          <IpLogo height={30} />
+          {/*<Box component="img" src="/probes-logo.svg" height={30} alt="InfoPortal Logo" {...props} />*/}
           <Core.Txt
             sx={{ml: 1, ...Core.styleUtils(t).truncate}}
             size="title"
             bold
-            dangerouslySetInnerHTML={{__html: title ?? ''}}
+            dangerouslySetInnerHTML={{__html: title ?? m.appTitle}}
           />
           {children}
         </div>

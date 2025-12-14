@@ -40,6 +40,7 @@ export const formatDuration = ({start, end}: {start: Date; end: Date}) => {
 
 export type Messages = (typeof en)['messages']
 
+const appName = 'NexusPortal'
 export const en = Object.freeze({
   formatDate,
   formatTime,
@@ -231,8 +232,8 @@ export const en = Object.freeze({
     refreshTable: 'Refresh current data',
     grantAccess: 'Grant access',
     title: 'Title',
-    appTitle: 'Welcome',
-    appSubTitle: 'InfoPortal',
+    appWelcomeMessage: 'Welcome',
+    appTitle: appName,
     noDataAtm: 'No data at the moment',
     fileName: 'File name',
     country: 'Country',
@@ -544,10 +545,10 @@ export const en = Object.freeze({
       connectedToKobo: 'Connected to Kobo',
       connectedToKoboDesc: 'The database is automatically synchronized whenever submissions are made in Kobo.',
       ipToKobo: 'Updating submissions from Kobo are sent are automatically sent to Kobo.',
-      koboToIp: `New submissions from Kobo are automatically sent to InfoPortal. Any changes in Kobo can be uploaded in InfoPortal using the <b>SYNC</b> button`,
+      koboToIp: `New submissions from Kobo are automatically sent to ${appName}. Any changes in Kobo can be uploaded in ${appName} using the <b>SYNC</b> button`,
       koboDisconnectedNoteTitle: `Connexion can re-enable later`,
-      koboDisconnectedNoteDesc: `But changes made in InfoPortal while it was disabled, as submission's update and new form version, won't be pushed to Kobo.`,
-      // disconnectToKoboDesc: `New submissions in Kobo won’t appear in InfoPortal, and updates made in InfoPortal won’t be sent to Kobo.<br/> <b>You can re-enable sync later</b>, but changes made in InfoPortal while it was disabled won't be pushed to Kobo.`,
+      koboDisconnectedNoteDesc: `But changes made in ${appName} while it was disabled, as submission's update and new form version, won't be pushed to Kobo.`,
+      // disconnectToKoboDesc: `New submissions in Kobo won’t appear in ${appName}, and updates made in ${appName} won’t be sent to Kobo.<br/> <b>You can re-enable sync later</b>, but changes made in ${appName} while it was disabled won't be pushed to Kobo.`,
       disconnectToKobo: 'Disconnect from Kobo',
       reconnectToKobo: 'Re-connect to Kobo',
     },
@@ -576,7 +577,7 @@ export const en = Object.freeze({
     _koboDatabase: {
       mergedDb: 'Merged DB',
       autoEmail: 'Auto Email',
-      autoEmailDesc: 'Emails are sent to recipients on submission or column updates via Kobo or InfoPortal',
+      autoEmailDesc: `Emails are sent to recipients on submission or column updates via Kobo or ${appName}`,
       isArchived: 'This form is archived.',
       translation: 'Translation',
       newValue: 'New value',

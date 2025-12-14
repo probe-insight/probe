@@ -16,7 +16,8 @@ export const darkenVar = (color: string, coef: number) =>
 
 // export const colorPrimary = 'purple'
 // export const colorPrimary = '#0b57d0'
-export const colorPrimary = '#0083bc'
+export const colorPrimary = '#0094d3'
+// export const colorPrimary = '#0071e3'
 
 const fadeShadow = ({
   color = '#000',

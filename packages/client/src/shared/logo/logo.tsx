@@ -8,13 +8,5 @@ export const IpLogo = ({
   height?: number
 } & BoxProps) => {
   const {mode} = useColorScheme()
-  return (
-    <Box
-      component="img"
-      src={mode === 'dark' ? '/ip-logo-light.svg' : '/ip-logo.svg'}
-      height={height}
-      alt="InfoPortal Logo"
-      {...props}
-    />
-  )
+  return <Box component="img" src={'/app-logo.svg'} height={height} alt="InfoPortal Logo" {...props} />
 }
