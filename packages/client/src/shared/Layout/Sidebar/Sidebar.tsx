@@ -7,6 +7,7 @@ import {SidebarBody} from './SidebarBody'
 import {SidebarHeader} from './SidebarHeader'
 import {useI18n} from '@infoportal/client-i18n'
 import {Core} from '@/shared'
+import {alphaVar} from '@infoportal/client-core'
 
 const sidebarWidth = 260
 
@@ -65,6 +66,7 @@ export const Sidebar = ({
           bottom: 0,
           height: 'auto',
           ...(isTemporary && {
+            background: alphaVar(t.vars.palette.background.paper, 0.65),
             position: 'fixed',
             top: '0 !important',
           }),

@@ -4,4 +4,11 @@
   margin: auto;
   font-size: 0.874em;
   margin-bottom: var(--mui-spacing);
+
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
 }

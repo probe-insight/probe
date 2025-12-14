@@ -123,21 +123,30 @@ export const SessionLoginForm = ({setSession}: {setSession: (_: Api.User) => voi
         }}
       >
         <IpLogo sx={{margin: 'auto', display: 'block', mb: 1}} height={60} />
-        <Core.AnimatedText
+        <Box
           sx={{
-            display: 'block',
-            color: t.vars.palette.primary.dark,
-            letterSpacing: 3,
-            fontFamily: 'Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+            display: 'flex',
+            justifyContent: 'center',
+            letterSpacing: 1,
+            // fontFamily: 'Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
             fontWeight: 'bold',
             textAlign: 'center',
             fontSize: styleUtils(t).fontSize.big,
           }}
-          hideCursorOnComplete={false}
-          text={m.appSubTitle}
-        />
+        >
+          &nbsp;
+          <Core.AnimatedText
+            sx={{
+              // textTransform: 'uppercase',
+              display: 'block',
+              color: t.vars.palette.primary.dark,
+            }}
+            hideCursorOnComplete={false}
+            text={m.appTitle}
+          />
+        </Box>
         <Core.Txt sx={{textAlign: 'center', mt: 1, mb: 2, fontSize: 40}} block>
-          {m.appTitle}
+          {m.appWelcomeMessage}
         </Core.Txt>
 
         <BtnLogin

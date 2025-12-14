@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: m.title,
   description: m.desc,
   icons: {
-    icon: '/favicon.svg',
+    icon: '/app-logo.svg',
   },
 }
 
