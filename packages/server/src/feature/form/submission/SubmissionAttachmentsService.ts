@@ -4,37 +4,26 @@ import {app} from '../../../index.js'
 import {Api} from '@infoportal/api-sdk'
 import {nanoid} from 'nanoid'
 import {Kobo} from 'kobo-sdk'
+import {duration} from '@axanc/ts-utils'
 
 export class SubmissionAttachmentsService {
-
   constructor(
     private conf = appConf,
     private fileStorage = FileStorage.getInstance(conf),
     private log = app.logger('SubmissionAttachmentsService'),
-  ) {
-  }
+  ) {}
 
   static readonly genId = nanoid
-
-  readonly getUrl = ({
-    formId,
-    submissionId,
-    fileName,
-  }: {
-    formId: Api.FormId
-    submissionId: Api.SubmissionId
-    fileName: string
-  }) => this.fileStorage.url({filePath: `/${formId}/submission/${submissionId}/${fileName}`})
 
   static readonly getPath = ({
     formId,
     submissionId,
-    fileName,
+    attachmentName,
   }: {
     formId: Api.FormId
     submissionId: Api.SubmissionId
-    fileName: string
-  }) => `/${formId}/submission/${submissionId}/${fileName}`
+    attachmentName: string
+  }) => `/${formId}/submission/${submissionId}/${attachmentName}`
 
   readonly makeAttachment = ({
     fileName,
@@ -65,11 +54,7 @@ export class SubmissionAttachmentsService {
     // return this.fileStorage.remove({filePath: `/${formId}/submission/${submissionId}`})
   }
 
-  readonly removeForForm = async ({
-    formId,
-  }: {
-    formId: Api.FormId
-  }) => {
+  readonly removeForForm = async ({formId}: {formId: Api.FormId}) => {
     return this.fileStorage.remove({filePath: `/${formId}`})
   }
 
@@ -90,7 +75,7 @@ export class SubmissionAttachmentsService {
         const filePath = SubmissionAttachmentsService.getPath({
           formId,
           submissionId,
-          fileName: attachment.originalname,
+          attachmentName: attachment.originalname,
         })
         await this.fileStorage.upload({
           filePath,
@@ -105,7 +90,20 @@ export class SubmissionAttachmentsService {
     )
   }
 
-  private getSchema = () => {
-
+  readonly getUrl = async ({
+    workspaceId,
+    formId,
+    submissionId,
+    attachmentName,
+  }: {
+    workspaceId: Api.WorkspaceId
+    formId: Api.FormId
+    submissionId: Api.SubmissionId
+    attachmentName: string
+  }) => {
+    const storagePath = SubmissionAttachmentsService.getPath({formId, submissionId, attachmentName})
+    return this.fileStorage.getSignedUrl(storagePath, {
+      expiresInMs: duration(5, 'minute'),
+    })
   }
 }

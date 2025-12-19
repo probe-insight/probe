@@ -148,7 +148,6 @@ export class QuestionType {
         const value = this.getValue({row, ...props}) as string
         const url = props.getFileUrl({
           formId: props.formId,
-          isKoboSubmission: !!row.originId,
           submissionId: row.id,
           attachments: row.attachments,
           fileName: value,

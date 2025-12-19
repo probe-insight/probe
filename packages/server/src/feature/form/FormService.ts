@@ -5,7 +5,7 @@ import {FormAccessService} from './access/FormAccessService.js'
 import {prismaMapper} from '../../core/prismaMapper/PrismaMapper.js'
 import {Kobo} from 'kobo-sdk'
 import {seq} from '@axanc/ts-utils'
-import {SubmissionAttachmentsService} from './submission/SubmissionAttachmentsService'
+import {SubmissionAttachmentsService} from './submission/SubmissionAttachmentsService.js'
 
 export type FormServiceCreatePayload = Api.Form.Payload.Create & {
   kobo?: {
@@ -24,9 +24,8 @@ export class FormService {
     private formVersion = new FormVersionService(prisma),
     private access = new FormAccessService(prisma),
     private formAccess = new FormAccessService(prisma),
-    private attachements = new SubmissionAttachmentsService(prisma),
-  ) {
-  }
+    private attachments = new SubmissionAttachmentsService(),
+  ) {}
 
   readonly create = async ({
     name,
@@ -50,8 +49,8 @@ export class FormService {
         workspaceId,
         kobo: kobo
           ? {
-            create: kobo,
-          }
+              create: kobo,
+            }
           : undefined,
       },
     })
@@ -126,7 +125,7 @@ export class FormService {
     await Promise.all([
       this.prisma.databaseView.deleteMany({where: {databaseId: id}}),
       this.prisma.form.delete({where: {id}}),
-      this.attachements.removeForForm({formId: id}),
+      this.attachments.removeForForm({formId: id}),
     ])
   }
 

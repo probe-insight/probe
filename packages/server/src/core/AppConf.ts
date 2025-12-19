@@ -12,6 +12,7 @@ const e = env(process.env)
 
 export const appConf = {
   sessionSecret: e(required)('SESSION_SECRET'),
+  fileSigningSecret: e(required)('FILE_SIGNING_SECRET'),
   baseUrl: e(required)('BASE_URL'),
   frontEndBaseUrl: e(required)('FRONTEND_BASE_URL'),
   logLevel: e(defaultValue('info'))('LOG_LEVEL'),

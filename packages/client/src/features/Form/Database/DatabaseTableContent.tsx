@@ -81,7 +81,8 @@ export const DatabaseTableContent = ({
         },
       })
     const schemaColumns = buildDbColumns.question.bySchema({
-      getFileUrl: getKoboAttachmentUrl,
+      getFileUrl: ({fileName, formId, submissionId}) =>
+        apiv2.submission.getAttachmentUrl({workspaceId, formId, submissionId, attachmentName: fileName}),
       isReadonly: !ctx.canEdit,
       getRow: (_: Submission) => _.answers,
       formId: ctx.form.id,
@@ -92,7 +93,8 @@ export const DatabaseTableContent = ({
       m,
     })
     return databaseKoboDisplayBuilder({
-      getFileUrl: getKoboAttachmentUrl,
+      getFileUrl: ({fileName, formId, submissionId}) =>
+        apiv2.submission.getAttachmentUrl({workspaceId, formId, submissionId, attachmentName: fileName!}),
       data: ctx.data ?? [],
       formId: ctx.form.id,
       inspector: ctx.inspector,
@@ -139,7 +141,7 @@ export const DatabaseTableContent = ({
     }))
   }, [schemaColumns, ctx.view.currentView])
 
-  const {api} = useAppSettings()
+  const {api, apiv2} = useAppSettings()
   const _importFromXLS = useAsync(api.importData.importFromXLSFile)
   const {toastHttpError} = useIpToast()
 

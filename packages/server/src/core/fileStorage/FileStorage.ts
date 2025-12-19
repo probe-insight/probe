@@ -2,7 +2,6 @@ import {AppConf} from '../AppConf.js'
 import {FileStorageLocal} from './FileStorageLocal.js'
 
 export interface FileStorageInterface {
-
   upload(params: {filePath: string; data: Buffer | Uint8Array}): Promise<void>
 
   get(params: {filePath: string}): Promise<Buffer>
@@ -10,11 +9,21 @@ export interface FileStorageInterface {
   remove(params: {filePath: string}): Promise<void>
 
   url(params: {filePath: string}): string
+
+  getSignedUrl(
+    filePath: string,
+    {
+      expiresInMs,
+    }: {
+      expiresInMs: number
+    },
+  ): Promise<string>
+
+  verifySignedUrl(params: {filePath: string; expires: number; signature: string}): boolean
 }
 
 export class FileStorage {
-  private constructor() {
-  }
+  private constructor() {}
 
   static instance: FileStorageInterface | null = null
 

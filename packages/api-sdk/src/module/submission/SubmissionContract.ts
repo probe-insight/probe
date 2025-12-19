@@ -8,6 +8,18 @@ import {endOfDay, startOfDay} from 'date-fns'
 
 const c = initContract()
 
+const getSubmissionAttachmentUrl = ({
+  workspaceId = ':workspaceId' as any,
+  formId = ':formId' as any,
+  submissionId = ':submissionId' as any,
+  attachmentName = ':attachmentName',
+}: {
+  workspaceId?: Api.WorkspaceId
+  formId?: Api.FormId
+  submissionId?: Api.SubmissionId
+  attachmentName?: string
+} = {}) => `/workspaces/${workspaceId}/forms/${formId}/submissions/${submissionId}/attachment/${attachmentName}`
+
 export const submissionContract = c.router({
   search: {
     method: 'POST',
@@ -114,7 +126,29 @@ export const submissionContract = c.router({
     responses: {
       200: c.type<Api.Submission>(),
     },
+    metadata: makeMeta({
+      access: {
+        form: ['answers_canSubmit'],
+      },
+    }),
   },
+  // getAttachmentUrl: {
+  //   method: 'GET',
+  //   path: getSubmissionAttachmentUrl(),
+  //   pathParams: ,
+  //   responses: {
+  //     200: z.never(),
+  //     302: z.never(),
+  //     401: z.never(),
+  //     403: z.never(),
+  //     404: z.never(),
+  //   },
+  //   metadata: makeMeta({
+  //     access: {
+  //       form: ['canGet'],
+  //     },
+  //   }),
+  // },
 })
 
 export const submissionClient = (client: TsRestClient, baseUrl: string) => {
@@ -224,9 +258,13 @@ export const submissionClient = (client: TsRestClient, baseUrl: string) => {
         .then(map200)
     },
 
-  getAttachmentUrl : ({formId, submissionId, attachmentName}: {formId: Api.FormId, submissionId: Api.SubmissionId, attachmentName: string}) => {
-    return `${baseUrl}/attachments/${formId}/attachments/${attachmentName}`
+    getAttachmentUrl: (params: {
+      workspaceId: Api.WorkspaceId
+      formId: Api.FormId
+      submissionId: Api.SubmissionId
+      attachmentName: string
+    }) => {
+      return baseUrl + getSubmissionAttachmentUrl(params)
+    },
   }
-  }
-
 }
