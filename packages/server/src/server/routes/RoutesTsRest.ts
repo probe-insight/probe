@@ -6,8 +6,6 @@ import {FormVersionService} from '../../feature/form/FormVersionService.js'
 import {KoboFormService} from '../../feature/kobo/KoboFormService.js'
 import {KoboAccountService} from '../../feature/kobo/KoboAccountService.js'
 import {FormService} from '../../feature/form/FormService.js'
-import {FormAccessService} from '../../feature/form/access/FormAccessService.js'
-import {PermissionService} from '../../feature/PermissionService.js'
 import {WorkspaceService} from '../../feature/workspace/WorkspaceService.js'
 import {WorkspaceAccessService} from '../../feature/workspace/WorkspaceAccessService.js'
 import {SubmissionService} from '../../feature/form/submission/SubmissionService.js'
@@ -75,83 +73,69 @@ export class RoutesTsRest extends Router {
         updateCol: _ =>
           this.auth(_)
             .then(({body, req}) => databaseView.updateCol({...body, updatedBy: req.session.app.user.email}))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         search: _ =>
           this.auth(_)
             .then(({body}) => databaseView.search(body))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         create: _ =>
           this.auth(_)
             .then(({body}) => databaseView.create(body))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         update: _ =>
           this.auth(_)
             .then(({body}) => databaseView.update(body))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         delete: _ =>
           this.auth(_)
             .then(({body}) => databaseView.delete(body))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
       },
       workspace: {
         getMine: _ =>
           this.auth(_)
             .then(({req}) => workspace.getByUser(req.session.app.user.email))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
+        // ,
         checkSlug: _ =>
           this.auth(_)
             .then(({body}) => workspace.checkSlug(body.slug))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         create: _ =>
           this.auth(_)
             .then(({body, req}) => workspace.create(body, req.session.app.user))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         update: _ =>
           this.auth(_)
             .then(({body, params}) => workspace.update(params.id, body))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         remove: _ =>
           this.auth(_)
             .then(({params}) => workspace.remove(params.id))
-            .then(this.ok204)
-            .catch(this.handleError),
+            .then(this.ok204),
         invitation: {
           remove: _ =>
             this.auth(_)
               .then(({params}) => workspaceInvitation.remove(params))
-              .then(this.ok204)
-              .catch(this.handleError),
+              .then(this.ok204),
           create: _ =>
             this.auth(_)
               .then(({body, params, req}) =>
                 workspaceInvitation.create({...body, ...params}, req.session.app.user.email),
               )
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           accept: _ =>
             this.auth(_)
               .then(({params, body}) => workspaceInvitation.accept({id: params.id, accept: body.accept}))
-              .then(this.ok204)
-              .catch(this.handleError),
+              .then(this.ok204),
           getMine: _ =>
             this.auth(_)
               .then(({req}) => workspaceInvitation.getByUser({user: req.session.app.user}))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           search: _ =>
             this.auth(_)
               .then(({params}) => workspaceInvitation.getByWorkspace({workspaceId: params.workspaceId}))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
         },
         access: {},
       },
@@ -159,148 +143,121 @@ export class RoutesTsRest extends Router {
         create: _ =>
           this.auth(_)
             .then(({params, body}) => group.create({...body, ...params}))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         update: _ =>
           this.auth(_)
             .then(({params, body}) => group.update({...body, ...params}))
             .then(HttpError.throwNotFoundIfUndefined())
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         search: _ =>
           this.auth(_)
             .then(({params, body}) => group.search({...body, ...params}))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         remove: _ =>
           this.auth(_)
             .then(({params}) => group.remove(params))
-            .then(this.ok204)
-            .catch(this.handleError),
+            .then(this.ok204),
         createItem: _ =>
           this.auth(_)
             .then(({body, params}) => groupItem.create({...body, ...params}))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         deleteItem: _ =>
           this.auth(_)
             .then(({params}) => groupItem.remove(params))
-            .then(this.ok204)
-            .catch(this.handleError),
+            .then(this.ok204),
         updateItem: _ =>
           this.auth(_)
             .then(({params, body}) => groupItem.update({...body, ...params}))
             .then(HttpError.throwNotFoundIfUndefined())
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
       },
       dashboard: {
         checkSlug: _ =>
           this.auth(_)
             .then(({body}) => dashboard.checkSlug(body.slug))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         getProtectedSubmission: _ =>
           this.auth(_)
             .then(({body}) => dashboard.getProtectedSubmission(body))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         search: _ =>
           this.auth(_)
             .then(({body}) => dashboard.getAll(body))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         restorePublishedVersion: _ =>
           this.auth(_)
             .then(({body}) => dashboard.restorePublishedVersion(body))
-            .then(this.ok204)
-            .catch(this.handleError),
+            .then(this.ok204),
         getPublished: _ =>
           this.auth(_)
             .then(({body}) => dashboard.getPublished(body))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         create: _ =>
           this.auth(_)
             .then(({body, req}) => dashboard.create({...body, createdBy: req.session.app.user.email}))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         update: _ =>
           this.auth(_)
             .then(({body}) => dashboard.update(body))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         remove: _ =>
           this.auth(_)
             .then(({body, req}) => dashboard.remove({...body, deletedBy: req.session.app.user.email}))
-            .then(this.ok204)
-            .catch(this.handleError),
+            .then(this.ok204),
         publish: _ =>
           this.auth(_)
             .then(({body, req}) => dashboard.publish({...body, publishedBy: req.session.app.user.email}))
-            .then(this.ok204)
-            .catch(this.handleError),
+            .then(this.ok204),
         section: {
           search: _ =>
             this.auth(_)
               .then(({body}) => section.search(body))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           create: _ =>
             this.auth(_)
               .then(({body}) => section.create(body))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           update: _ =>
             this.auth(_)
               .then(({body}) => section.update(body))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           remove: _ =>
             this.auth(_)
               .then(({body}) => section.remove(body))
-              .then(this.ok204)
-              .catch(this.handleError),
+              .then(this.ok204),
         },
         widget: {
           search: _ =>
             this.auth(_)
               .then(({body}) => widget.search(body))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           create: _ =>
             this.auth(_)
               .then(({body}) => widget.create(body))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           update: _ =>
             this.auth(_)
               .then(({body}) => widget.update(body))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           remove: _ =>
             this.auth(_)
               .then(({body}) => widget.remove(body))
-              .then(this.ok204)
-              .catch(this.handleError),
+              .then(this.ok204),
         },
       },
       user: {
         update: _ =>
           this.auth(_)
             .then(({params, body}) => user.updateByUserId({...body, ...params}))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         search: _ =>
           this.auth(_)
             .then(({params}) => user.getAll(params))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         getJobs: _ =>
           this.auth(_)
             .then(({params}) => user.getDistinctJobs(params))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
       },
       permission: {
         getMineGlobal: _ =>
@@ -310,8 +267,7 @@ export class RoutesTsRest extends Router {
                 user: req.session.app?.user,
               }),
             )
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         getMineByWorkspace: _ =>
           this.auth(_)
             .then(({params, req}) =>
@@ -320,8 +276,7 @@ export class RoutesTsRest extends Router {
                 ...params,
               }),
             )
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         getMineByForm: _ =>
           this.auth(_)
             .then(({params, req}) =>
@@ -330,8 +285,7 @@ export class RoutesTsRest extends Router {
                 ...params,
               }),
             )
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
       },
 
       kobo: {
@@ -339,23 +293,19 @@ export class RoutesTsRest extends Router {
           delete: _ =>
             this.auth(_)
               .then(({params}) => koboAccount.delete({id: params.id}))
-              .then(this.ok204)
-              .catch(this.handleError),
+              .then(this.ok204),
           create: _ =>
             this.auth(_)
               .then(({params, body}) => koboAccount.create({workspaceId: params.workspaceId, ...body}))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           getAll: _ =>
             this.auth(_)
               .then(({params}) => koboAccount.getAll(params))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           get: _ =>
             this.auth(_)
               .then(({params}) => koboAccount.get(params))
-              .then(this.okOrNotFound)
-              .catch(this.handleError),
+              .then(this.okOrNotFound),
         },
         form: {
           import: _ =>
@@ -366,13 +316,12 @@ export class RoutesTsRest extends Router {
                   uploadedBy: req.session.app?.user.email!,
                 }),
               )
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
         },
       },
       submission: {
         submit: {
-          middleware: [this.memoryUploader.array('file')],
+          middleware: [this.multerMemory.array('file')],
           handler: ({params, body, req}) =>
             submission
               .submit({
@@ -382,36 +331,30 @@ export class RoutesTsRest extends Router {
                 attachments: req.files as unknown as Express.Multer.File[],
                 author: req.session.app?.user?.email,
               })
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
         },
         updateSingle: _ =>
           this.auth(_)
             .then(({req, body}) => submissionUpdate.updateSingle({...body, authorEmail: req.session.app.user.email!}))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         bulkUpdateQuestion: _ =>
           this.auth(_)
             .then(({req, body}) =>
               submissionUpdate.bulkUpdateQuestion({...body, authorEmail: req.session.app.user.email!}),
             )
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         bulkUpdateValidation: _ =>
           this.auth(_)
             .then(({req, body}) =>
               submissionUpdate.bulkUpdateValidation({...body, authorEmail: req.session.app.user.email!}),
             )
-            .then(this.ok200)
-            .catch(this.handleError),
-
+            .then(this.ok200),
         remove: _ =>
           this.auth(_)
             .then(({req, params, body}) =>
               submissionUpdate.remove({...body, ...params, authorEmail: req.session.app.user.email!}),
             )
-            .then(this.ok204)
-            .catch(this.handleError),
+            .then(this.ok204),
         search: _ =>
           this.auth(_)
             .then(({req, params, body}) =>
@@ -421,14 +364,12 @@ export class RoutesTsRest extends Router {
                 user: req.session.app.user,
               }),
             )
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         history: {
           search: _ =>
             this.auth(_)
               .then(({body}) => submissionHistory.search(body))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
         },
       },
       form: {
@@ -437,29 +378,24 @@ export class RoutesTsRest extends Router {
             .then(({params, body, req}) =>
               form.updateKoboConnexion({...params, ...body, author: req.session.app.user.email}),
             )
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         update: _ =>
           this.auth(_)
             .then(({params, body}) => form.update({...params, ...body}))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         remove: _ =>
           this.auth(_)
             .then(({params}) => form.remove(params.formId))
-            .then(this.ok204)
-            .catch(this.handleError),
+            .then(this.ok204),
         getAll: _ =>
           this.auth(_)
             .then(({params}) => form.getAll({wsId: params.workspaceId}))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         getMine: _ =>
           this.auth(_)
             .then(({params, req}) => form.getByUser({user: req.session.app.user, workspaceId: params.workspaceId}))
-            .then(this.ok200)
-            .catch(this.handleError),
-        get: ({params}) => form.get(params.formId).then(this.okOrNotFound).catch(this.handleError),
+            .then(this.ok200),
+        get: ({params}) => form.get(params.formId).then(this.okOrNotFound),
         create: _ =>
           this.auth(_).then(({req, body, params}) =>
             form
@@ -468,8 +404,7 @@ export class RoutesTsRest extends Router {
                 workspaceId: params.workspaceId,
                 ...body,
               })
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           ),
         refreshAll: _ =>
           this.auth(_)
@@ -479,47 +414,40 @@ export class RoutesTsRest extends Router {
                 wsId: params.workspaceId,
               }),
             )
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         schema: {
-          get: ({body}) => schema.get({formId: body.formId}).then(this.ok200).catch(this.handleError),
-          getXml: ({body}) => schema.getXml({formId: body.formId}).then(this.ok200).catch(this.handleError),
+          get: ({body}) => schema.get({formId: body.formId}).then(this.ok200),
+          getXml: ({body}) => schema.getXml({formId: body.formId}).then(this.ok200),
           getByVersion: _ =>
             this.auth(_)
               .then(({body}) => schema.getByVersion({formId: body.formId, versionId: body.versionId}))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           getByVersionXml: _ =>
             this.auth(_)
               .then(({body}) => schema.getByVersionXml({formId: body.formId, versionId: body.versionId}))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
         },
         access: {
           create: _ =>
             this.auth(_)
               .then(({params, body}) => this.formAccess.create({...params, ...body}))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           update: _ =>
             this.auth(_)
               .then(({params, body}) => this.formAccess.update({...params, ...body}))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           remove: _ =>
             this.auth(_)
               .then(({req, params}) =>
                 this.formAccess.remove({id: params.id, deletedByEmail: req.session.app.user.email}),
               )
-              .then(this.ok204)
-              .catch(this.handleError),
+              .then(this.ok204),
           search: _ =>
             this.auth(_)
               .then(({params, body, req}) =>
                 this.formAccess.search({formId: body.formId, workspaceId: params.workspaceId}),
               )
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           searchMine: _ =>
             this.auth(_)
               .then(({params, req, body}) =>
@@ -529,21 +457,19 @@ export class RoutesTsRest extends Router {
                   user: req.session.app.user,
                 }),
               )
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
         },
         version: {
           validateXlsForm: {
-            middleware: [this.diskUploader.single('file')],
+            middleware: [this.multerDisk.single('file')],
             handler: _ =>
               this.auth(_)
                 .then(this.ensureFile)
                 .then(({file}) => formVersion.validateXlsForm(file.path))
-                .then(this.ok200)
-                .catch(this.handleError),
+                .then(this.ok200),
           },
           uploadXlsForm: {
-            middleware: [this.diskUploader.single('file')],
+            middleware: [this.multerDisk.single('file')],
             handler: _ =>
               this.auth(_)
                 .then(this.ensureFile)
@@ -554,29 +480,24 @@ export class RoutesTsRest extends Router {
                     file,
                   }),
                 )
-                .then(this.ok200)
-                .catch(this.handleError),
+                .then(this.ok200),
           },
           getByFormId: _ =>
             this.auth(_)
               .then(({body}) => formVersion.getVersions({formId: body.formId}))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           createNewVersion: _ =>
             this.auth(_)
               .then(({body, req}) => formVersion.createNewVersion({...body, uploadedBy: req.session.app.user.email}))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           deployLast: _ =>
             this.auth(_)
               .then(({req, body}) => formVersion.deployLastDraft({formId: body.formId}))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           importLastKoboSchema: _ =>
             this.auth(_)
               .then(({req, body}) => formVersion.importLastKoboSchema({author: req.session.app.user.email, ...body}))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
         },
         action: {
           create: _ =>
@@ -584,45 +505,38 @@ export class RoutesTsRest extends Router {
               .then(({params, body, req}) =>
                 formAction.create({...params, ...body, createdBy: req.session.app.user.email}),
               )
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           update: _ =>
             this.auth(_)
               .then(({params, body, req}) =>
                 formAction.update({...params, ...body, createdBy: req.session.app.user.email}),
               )
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           getByDbId: _ =>
             this.auth(_)
               .then(({params}) => formAction.getByForm(params))
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           runAllActionsByForm: _ =>
             this.auth(_)
               .then(({params, req}) =>
                 formActionRunner.runAllActionByForm({...params, startedBy: req.session.app.user.email}),
               )
-              .then(this.ok200)
-              .catch(this.handleError),
+              .then(this.ok200),
           report: {
             getByFormId: _ =>
               this.auth(_)
                 .then(({params}) => formActionReport.getByFormId(params))
-                .then(this.ok200)
-                .catch(this.handleError),
+                .then(this.ok200),
             getRunning: _ =>
               this.auth(_)
                 .then(({params}) => formActionRunningReport.get(params.formId))
-                .then(this.okOrNotFound)
-                .catch(this.handleError),
+                .then(this.okOrNotFound),
           },
           log: {
             search: _ =>
               this.auth(_)
                 .then(({params, body}) => formActionLog.search({...params, ...body}))
-                .then(this.ok200)
-                .catch(this.handleError),
+                .then(this.ok200),
           },
         },
       },
@@ -630,13 +544,11 @@ export class RoutesTsRest extends Router {
         getUsersByDate: _ =>
           this.auth(_)
             .then(({req, body}) => metrics.usersByDate({user: req.session.app.user, ...body}))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
         getSubmissionsBy: _ =>
           this.auth(_)
             .then(({req, body}) => metrics.submissionsBy({user: req.session.app.user, ...body}))
-            .then(this.ok200)
-            .catch(this.handleError),
+            .then(this.ok200),
       },
     })
     createExpressEndpoints(apiContract, tsRestRouter, this.server, {logInitialization: false})

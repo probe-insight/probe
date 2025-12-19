@@ -7,6 +7,7 @@ import {PermissionService} from '../../feature/PermissionService.js'
 import {PrismaClient} from '@infoportal/prisma'
 import {FormAccessService} from '../../feature/form/access/FormAccessService.js'
 import {app, AppLogger} from '../../index.js'
+import {ZodError} from 'zod'
 
 interface HandlerArgs<TReq = Request, TParams = any, TBody = any, TQuery = any> {
   req: TReq
@@ -47,11 +48,11 @@ export class Router {
   }
 
   readonly authMiddleware = (meta?: Meta) => async (req: Request, res: Response, next: NextFunction) => {
-    this.assertAuth(req, meta).then(next).catch(next)
+    await this.assertAuth(req, meta).then(next).catch(next)
   }
 
   readonly auth = async <T extends HandlerArgs>(args: T): Promise<Omit<T, 'req'> & {req: AuthRequest<T['req']>}> => {
-    this.assertAuth(args.req, (args.req as any).tsRestRoute.metadata)
+    await this.assertAuth(args.req, (args.req as any).tsRestRoute.metadata)
     return args as any
   }
 
@@ -69,35 +70,9 @@ export class Router {
     }
   }
 
-  readonly notFound = (): {status: ErrorHttpStatusCode; body: ErrBody} => {
-    return {status: 404, body: {message: 'Resource not found'}}
-  }
-
-  readonly okOrNotFound = <T>(
-    body: T | undefined,
-  ): T extends undefined ? {status: 404; body: ErrBody} : {status: SuccessfulHttpStatusCode; body: T} => {
-    // @ts-ignore
-    return body ? this.ok200(body) : this.notFound()
-  }
-
-  readonly handleError = (e: Error): {status: ErrorHttpStatusCode; body: ErrBody} => {
-    const statusMap = new Map<Function, ErrorHttpStatusCode>([
-      [HttpError.Conflict, 409],
-      [HttpError.Forbidden, 403],
-      [HttpError.NotFound, 404],
-    ])
-
-    const status = Array.from(statusMap.entries()).find(([ErrClass]) => e instanceof ErrClass)?.[1] ?? 500
-
-    this.log.error(status + ':' + e.name + ' - ' + e.message)
-    console.error(e)
-    return {
-      status,
-      body: {
-        message: e.message,
-        data: (e as any)?.data,
-      },
-    }
+  readonly okOrNotFound = <T>(body: T | undefined): {status: SuccessfulHttpStatusCode; body: T} => {
+    if (body) return this.ok200(body)
+    throw HttpError.NotFound
   }
 
   readonly ensureFile = <T extends HandlerArgs>(args: T): Promise<T & {file: Express.Multer.File}> => {
@@ -109,8 +84,8 @@ export class Router {
     })
   }
 
-  readonly diskUploader = multer({dest: 'uploads/'})
-  readonly memoryUploader = multer({
+  readonly multerDisk = multer({dest: 'uploads/'})
+  readonly multerMemory = multer({
     storage: multer.memoryStorage(),
   })
 }

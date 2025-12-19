@@ -24,7 +24,7 @@ export class FormService {
     private formVersion = new FormVersionService(prisma),
     private access = new FormAccessService(prisma),
     private formAccess = new FormAccessService(prisma),
-    private attachments = new SubmissionAttachmentsService(),
+    private attachments = new SubmissionAttachmentsService(prisma),
   ) {}
 
   readonly create = async ({

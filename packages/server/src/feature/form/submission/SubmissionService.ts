@@ -18,7 +18,7 @@ export class SubmissionService {
     private form = new FormService(prisma),
     private schema = new FormSchemaService(prisma),
     private access = new FormAccessService(prisma),
-    private attachments = new SubmissionAttachmentsService(),
+    private attachments = new SubmissionAttachmentsService(prisma),
     private event = app.event,
     private conf = appConf,
     private log = app.logger('KoboService'),

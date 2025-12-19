@@ -1,15 +1,20 @@
 import {appConf} from '../../../core/AppConf.js'
 import {FileStorage} from '../../../core/fileStorage/FileStorage.js'
 import {app} from '../../../index.js'
-import {Api} from '@infoportal/api-sdk'
+import {Api, HttpError} from '@infoportal/api-sdk'
 import {nanoid} from 'nanoid'
 import {Kobo} from 'kobo-sdk'
 import {duration} from '@axanc/ts-utils'
+import {PrismaClient} from '@infoportal/prisma'
+import {KoboFormIndex} from '../../kobo/KoboFormIndex.js'
+import {ControllerKoboApi} from '../../../server/controller/kobo/ControllerKoboApi.js'
 
 export class SubmissionAttachmentsService {
   constructor(
+    private prisma: PrismaClient,
     private conf = appConf,
     private fileStorage = FileStorage.getInstance(conf),
+    private koboFormIndex = KoboFormIndex.getSingleton(prisma),
     private log = app.logger('SubmissionAttachmentsService'),
   ) {}
 
@@ -33,11 +38,13 @@ export class SubmissionAttachmentsService {
     question_xpath: string
     filePath: string
     fileName: string
-  }): Kobo.Submission.Attachment => {
+  }): Api.Submission.Attachment => {
     return {
+      source: 'internal',
       uid: SubmissionAttachmentsService.genId(),
       question_xpath: question_xpath,
       filename: fileName,
+      media_file_basename: fileName,
       download_url: this.fileStorage.url({filePath}),
       download_small_url: this.fileStorage.url({filePath}),
     }
@@ -101,9 +108,33 @@ export class SubmissionAttachmentsService {
     submissionId: Api.SubmissionId
     attachmentName: string
   }) => {
-    const storagePath = SubmissionAttachmentsService.getPath({formId, submissionId, attachmentName})
-    return this.fileStorage.getSignedUrl(storagePath, {
-      expiresInMs: duration(5, 'minute'),
-    })
+    const submission = await this.prisma.formSubmission
+      .findFirst({
+        select: {originId: true, attachments: true},
+        where: {id: submissionId},
+      })
+      .then(HttpError.throwNotFoundIfUndefined(`Cannot find Submission ${submissionId}`))
+
+    const attachment = (submission.attachments as Api.Submission.Attachment[]).find(
+      _ => _.media_file_basename === attachmentName,
+    )
+    if (!attachment) throw new HttpError.NotFound(`Could not find ${attachmentName} in submission ${submissionId}.`)
+
+    if (submission.originId && attachment.source !== 'internal') {
+      const koboFormId = await this.koboFormIndex
+        .getByFormId(formId)
+        .then(HttpError.throwNotFoundIfUndefined('Cannot find KoboFormId for FormId ${formId}'))
+
+      return ControllerKoboApi.getAttachmentPath({
+        koboFormId,
+        koboSubmissionId: submission.originId,
+        attachmentUid: attachment.uid,
+      })
+    } else {
+      const storagePath = SubmissionAttachmentsService.getPath({formId, submissionId, attachmentName})
+      return this.fileStorage.getSignedUrl(storagePath, {
+        expiresInMs: duration(5, 'minute'),
+      })
+    }
   }
 }

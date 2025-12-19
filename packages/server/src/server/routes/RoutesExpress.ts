@@ -33,7 +33,7 @@ export class RoutesExpress extends Router {
       try {
         await handler(req, res, next)
       } catch (err) {
-        this.log.error('safe(): ' + req.url + '' + req.session.app?.user.email)
+        // this.log.error('safe(): ' + req.url + '' + req.session.app?.user.email)
         next(err)
       }
     }
@@ -46,45 +46,37 @@ export class RoutesExpress extends Router {
     const session = new ControllerSession(this.prisma)
     const cacheController = new ControllerCache()
     const importData = new ControllerKoboApiXlsImport(this.prisma)
-    const submissionAttachment = new SubmissionAttachmentsService()
+    const submissionAttachment = new SubmissionAttachmentsService(this.prisma)
 
     if (!this.conf.production) {
       const {path, handler} = new FileStorageLocal().getExpressRoute()
       this.router.get(path, this.authMiddleware(), handler)
     }
     try {
-      const getSubmissionAttachmentUrl = ({
-        workspaceId = ':workspaceId' as any,
-        formId = ':formId' as any,
-        submissionId = ':submissionId' as any,
-        attachmentName = ':attachmentName',
-      }: {
-        workspaceId?: Api.WorkspaceId
-        formId?: Api.FormId
-        submissionId?: Api.SubmissionId
-        attachmentName?: string
-      } = {}) => `/workspaces/${workspaceId}/forms/${formId}/submissions/${submissionId}/attachment/${attachmentName}`
-
-      r.get(getSubmissionAttachmentUrl(), async (req, res) => {
-        const schema = z.object({
-          workspaceId: z.string(),
-          formId: z.string(),
-          submissionId: z.string(),
-          attachmentName: z.string(),
-        })
-        const params = schema.parse(req.params)
-        const workspaceId = params.workspaceId as Api.WorkspaceId
-        const formId = params.formId as Api.FormId
-        const submissionId = params.submissionId as Api.SubmissionId
-        const attachmentName = params.attachmentName
-        const url = await submissionAttachment.getUrl({
-          workspaceId,
-          formId,
-          submissionId,
-          attachmentName,
-        })
-        res.redirect(url)
-      })
+      r.get(
+        `/workspaces/:workspaceId/forms/:formId/submissions/:submissionId/attachment/:attachmentName`,
+        this.safe(async (req, res) => {
+          const schema = z.object({
+            workspaceId: z.string(),
+            formId: z.string(),
+            submissionId: z.string(),
+            attachmentName: z.string(),
+          })
+          console.log(req.params, req.path)
+          const params = schema.parse(req.params)
+          const workspaceId = params.workspaceId as Api.WorkspaceId
+          const formId = params.formId as Api.FormId
+          const submissionId = params.submissionId as Api.SubmissionId
+          const attachmentName = params.attachmentName
+          const url = await submissionAttachment.getUrl({
+            workspaceId,
+            formId,
+            submissionId,
+            attachmentName,
+          })
+          res.redirect(url)
+        }),
+      )
 
       r.get('/', this.safe(main.ping))
       r.post('/session/track', this.safe(session.track))
@@ -108,16 +100,13 @@ export class RoutesExpress extends Router {
       )
       r.post('/kobo-api/schema', this.authMiddleware(), this.safe(koboApi.searchSchemas))
       r.post('/kobo-api/:formId/sync', this.authMiddleware(), this.safe(koboApi.syncAnswersByForm))
-      r.get(
-        '/kobo-api/:formId/submission/:submissionId/attachment/:attachmentId',
-        this.safe(koboApi.getAttachementsWithoutAuth),
-      )
+      r.get(ControllerKoboApi.getAttachmentPath(), this.authMiddleware(), this.safe(koboApi.getAttachment))
       r.get('/kobo-api/:formId/edit-url/:answerId', this.safe(koboApi.edit))
       r.post('/kobo-api/proxy', this.safe(koboApi.proxy))
       r.post(
         '/kobo-api/:formId/import-from-xls',
         this.authMiddleware(),
-        this.diskUploader.single('uf-import-answers'),
+        this.multerDisk.single('uf-import-answers'),
         this.safe(importData.handleFileUpload),
       )
 

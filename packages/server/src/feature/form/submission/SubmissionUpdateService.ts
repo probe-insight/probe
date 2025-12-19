@@ -23,12 +23,11 @@ export class SubmissionUpdateService {
   constructor(
     private prisma: PrismaClient,
     private history = new SubmissionHistoryService(prisma),
-    private attachments = new SubmissionAttachmentsService(),
+    private attachments = new SubmissionAttachmentsService(prisma),
     private sdkGenerator = KoboSdkGenerator.getSingleton(prisma),
     private event = app.event,
     private form = new FormService(prisma),
-  ) {
-  }
+  ) {}
 
   /**
    * Update the whole answers object for one submission.

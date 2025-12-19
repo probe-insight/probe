@@ -4,17 +4,15 @@ import {PrismaClient} from '@infoportal/prisma'
 import {KoboSdkGenerator} from '../../../feature/kobo/KoboSdkGenerator.js'
 import {KoboSyncServer} from '../../../feature/kobo/KoboSyncServer.js'
 import axios, {AxiosError} from 'axios'
-import {KoboFormService} from '../../../feature/kobo/KoboFormService.js'
-import {HttpError, Api} from '@infoportal/api-sdk'
-import {KoboFormIndex} from '../../../feature/kobo/KoboFormIndex.js'
+import {Api} from '@infoportal/api-sdk'
+import {Kobo} from 'kobo-sdk'
+import {z} from 'zod'
 
 export class ControllerKoboApi {
   constructor(
     private pgClient: PrismaClient,
-    private koboService = new KoboFormService(pgClient),
     private syncService = new KoboSyncServer(pgClient),
     private koboSdkGenerator = KoboSdkGenerator.getSingleton(pgClient),
-    private koboFormIndex = KoboFormIndex.getSingleton(pgClient),
   ) {}
 
   private readonly extractParams = async (req: Request) => {
@@ -89,45 +87,47 @@ export class ControllerKoboApi {
     res.redirect(link.url)
   }
 
-  readonly getAttachementsWithoutAuth = async (req: Request, res: Response, next: NextFunction) => {
-    // TODO Really bad performance I think, hard to deal with both IP attachments and Kobo attachments
-    const params = await yup
+  static readonly getAttachmentPath = ({
+    koboFormId = ':koboFormId' as any,
+    koboSubmissionId = ':koboSubmissionId' as any,
+    attachmentUid = ':attachmentUid',
+  }: {
+    koboFormId?: Kobo.FormId
+    koboSubmissionId?: Kobo.SubmissionId
+    attachmentUid?: string
+  } = {}) => `/kobo-api/${koboFormId}/submission/${koboSubmissionId}/attachment/${attachmentUid}`
+
+  readonly getAttachment = async (req: Request, res: Response, next: NextFunction) => {
+    const {attachmentUid, koboSubmissionId, koboFormId} = z
       .object({
-        formId: yup.string().required(),
-        attachmentId: yup.string().required(),
-        submissionId: yup.string().required(),
+        koboFormId: z.string(),
+        attachmentUid: z.string(),
+        koboSubmissionId: z.string(),
       })
-      .validate(req.params)
+      .parse(req.params)
+
     const fileName = req.query.fileName
-    const formId = params.formId as Api.FormId
-    // TODO Cache this
-    const koboSubmissionId = await this.pgClient.formSubmission
-      .findUnique({
-        select: {originId: true},
-        where: {id: params.submissionId},
-      })
-      .then(_ => _?.originId)
-    if (!koboSubmissionId)
-      throw new HttpError.NotFound(`Cannot find KoboSubmissionId for SubmissionId ${params.submissionId}`)
-    const koboFormId = await this.koboFormIndex.getByFormId(formId)
-    if (!koboFormId) throw new HttpError.NotFound(`Cannot find KoboFormId for FormId ${formId}`)
     const sdk = await this.koboSdkGenerator.getBy.koboFormId(koboFormId)
     try {
       const img = await sdk.v2.submission.getAttachement({
         submissionId: koboSubmissionId,
-        attachmentId: params.attachmentId,
+        attachmentId: attachmentUid,
         formId: koboFormId,
       })
       if (!fileName) {
-        res.set('Content-Type', 'image/jpeg')
-        res.set('Content-Length', img.length)
+        res.set({
+          'Cache-Control': 'private, max-age=0',
+          // FIXME Get actual MimeType
+          'Content-Type': 'application/octet-stream',
+          // 'Content-Length': img.length,
+        })
       } else {
         res.set(`Content-Disposition`, `inline; filename="${fileName}"`)
       }
       res.send(img)
     } catch (e) {
       console.log('ControllerKoboApi/getAttachmentsWithoutAuth', (e as AxiosError).code)
-      res.send(undefined)
+      res.sendStatus(404)
     }
   }
 

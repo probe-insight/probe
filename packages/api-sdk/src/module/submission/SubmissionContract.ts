@@ -8,18 +8,6 @@ import {endOfDay, startOfDay} from 'date-fns'
 
 const c = initContract()
 
-const getSubmissionAttachmentUrl = ({
-  workspaceId = ':workspaceId' as any,
-  formId = ':formId' as any,
-  submissionId = ':submissionId' as any,
-  attachmentName = ':attachmentName',
-}: {
-  workspaceId?: Api.WorkspaceId
-  formId?: Api.FormId
-  submissionId?: Api.SubmissionId
-  attachmentName?: string
-} = {}) => `/workspaces/${workspaceId}/forms/${formId}/submissions/${submissionId}/attachment/${attachmentName}`
-
 export const submissionContract = c.router({
   search: {
     method: 'POST',
@@ -258,13 +246,18 @@ export const submissionClient = (client: TsRestClient, baseUrl: string) => {
         .then(map200)
     },
 
-    getAttachmentUrl: (params: {
+    getAttachmentUrl: ({
+      workspaceId,
+      formId,
+      submissionId,
+      fileName,
+    }: {
       workspaceId: Api.WorkspaceId
       formId: Api.FormId
       submissionId: Api.SubmissionId
-      attachmentName: string
+      fileName: string
     }) => {
-      return baseUrl + getSubmissionAttachmentUrl(params)
+      return `${baseUrl}/workspaces/${workspaceId}/forms/${formId}/submissions/${submissionId}/attachment/${fileName}`
     },
   }
 }

@@ -42,10 +42,10 @@ export class DashboardService {
   }
 
   readonly restorePublishedVersion = async ({workspaceId, id}: {workspaceId: Api.WorkspaceId; id: Api.DashboardId}) => {
-    const snapshot: Api.DashboardWithSnapshot['snapshot'] = await this.prisma.dashboard
+    const snapshot = await this.prisma.dashboard
       .findFirstOrThrow({select: {published: {select: {snapshot: true}}}, where: {id}})
-      .then(_ => _.published?.snapshot)
-      .catch(HttpError.throwNotFoundIfUndefined())
+      .then(_ => _.published?.snapshot as undefined | Api.DashboardWithSnapshot['snapshot'])
+      .then(HttpError.throwNotFoundIfUndefined())
     await this.prisma.dashboardSection.deleteMany({where: {dashboardId: id}})
     const sections: Prisma.DashboardSectionCreateManyInput[] = snapshot.map(({widgets, ..._}) => ({
       ..._,

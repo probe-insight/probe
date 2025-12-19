@@ -82,7 +82,7 @@ export const DatabaseTableContent = ({
       })
     const schemaColumns = buildDbColumns.question.bySchema({
       getFileUrl: ({fileName, formId, submissionId}) =>
-        apiv2.submission.getAttachmentUrl({workspaceId, formId, submissionId, attachmentName: fileName}),
+        fileName && apiv2.submission.getAttachmentUrl({workspaceId, formId, submissionId, fileName}),
       isReadonly: !ctx.canEdit,
       getRow: (_: Submission) => _.answers,
       formId: ctx.form.id,
@@ -94,7 +94,7 @@ export const DatabaseTableContent = ({
     })
     return databaseKoboDisplayBuilder({
       getFileUrl: ({fileName, formId, submissionId}) =>
-        apiv2.submission.getAttachmentUrl({workspaceId, formId, submissionId, attachmentName: fileName!}),
+        fileName && apiv2.submission.getAttachmentUrl({workspaceId, formId, submissionId, fileName}),
       data: ctx.data ?? [],
       formId: ctx.form.id,
       inspector: ctx.inspector,
