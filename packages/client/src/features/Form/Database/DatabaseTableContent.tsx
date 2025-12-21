@@ -25,7 +25,6 @@ import {
 } from '@/features/Form/Database/DatabaseLeftPanel/DatabaseLeftPanel.js'
 import {useAsync} from '@axanc/react-hooks'
 import {buildDbColumns, OnRepeatGroupClick} from '@infoportal/database-column'
-import {getKoboAttachmentUrl} from '@/core/KoboAttachmentUrl.js'
 import {useFormContext} from '@/features/Form/Form'
 import {SelectLangIndex} from '@/shared/customInput/SelectLangIndex'
 import {DatabaseSelectedColumnAction} from '@/features/Form/Database/DatabaseSelectedColumnAction'
@@ -81,7 +80,8 @@ export const DatabaseTableContent = ({
         },
       })
     const schemaColumns = buildDbColumns.question.bySchema({
-      getFileUrl: getKoboAttachmentUrl,
+      getFileUrl: ({fileName, formId, submissionId}) =>
+        fileName && apiv2.submission.getAttachmentUrl({workspaceId, formId, submissionId, fileName}),
       isReadonly: !ctx.canEdit,
       getRow: (_: Submission) => _.answers,
       formId: ctx.form.id,
@@ -92,7 +92,8 @@ export const DatabaseTableContent = ({
       m,
     })
     return databaseKoboDisplayBuilder({
-      getFileUrl: getKoboAttachmentUrl,
+      getFileUrl: ({fileName, formId, submissionId}) =>
+        fileName && apiv2.submission.getAttachmentUrl({workspaceId, formId, submissionId, fileName}),
       data: ctx.data ?? [],
       formId: ctx.form.id,
       inspector: ctx.inspector,
@@ -139,7 +140,7 @@ export const DatabaseTableContent = ({
     }))
   }, [schemaColumns, ctx.view.currentView])
 
-  const {api} = useAppSettings()
+  const {api, apiv2} = useAppSettings()
   const _importFromXLS = useAsync(api.importData.importFromXLSFile)
   const {toastHttpError} = useIpToast()
 

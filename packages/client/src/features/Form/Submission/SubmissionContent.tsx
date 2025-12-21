@@ -6,8 +6,9 @@ import {useFormContext} from '@/features/Form/Form'
 import {useI18n} from '@infoportal/client-i18n'
 import {useMemo} from 'react'
 import {buildDbColumns} from '@infoportal/database-column'
-import {getKoboAttachmentUrl, KoboAttachedImg} from '@/core/KoboAttachmentUrl'
+import {SubmissionImg} from '@/core/KoboAttachmentUrl'
 import {Core, Datatable} from '@/shared'
+import {useAppSettings} from '@/core/context/ConfigContext'
 
 export const SubmissionContent = ({
   workspaceId,
@@ -60,6 +61,7 @@ const SubmissionViewQuestion = ({
   questionSchema: Api.Form.Question
   answer: Submission
 }) => {
+  const {apiv2} = useAppSettings()
   const langIndex = useFormContext(_ => _.langIndex)
   const {formatDateTime} = useI18n()
   const {m} = useI18n()
@@ -69,7 +71,8 @@ const SubmissionViewQuestion = ({
     const group = inspector.lookup.group.getByName(questionSchema.name)
     if (!group) return
     return buildDbColumns.question.byQuestions({
-      getFileUrl: getKoboAttachmentUrl,
+      getFileUrl: ({fileName, formId, submissionId}) =>
+        fileName && apiv2.submission.getAttachmentUrl({workspaceId, formId, submissionId, fileName}),
       questions: group.questions,
       inspector: inspector,
       formId,
@@ -96,10 +99,10 @@ const SubmissionViewQuestion = ({
             <Core.Txt block size="small" color="hint">
               {row.answers[questionSchema.name] as string}
             </Core.Txt>
-            <KoboAttachedImg
+            <SubmissionImg
               formId={formId}
+              workspaceId={workspaceId}
               submissionId={row.id}
-              attachments={row.attachments}
               size={84}
               fileName={row.answers[questionSchema.name] as string}
             />

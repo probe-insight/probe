@@ -153,7 +153,7 @@ model FormSubmission {
   id                     String                    @id @db.VarChar(32)
   originId               String?
   uuid                   String
-  form                   Form                      @relation(fields: [formId], references: [id])
+  form                   Form                      @relation(fields: [formId], references: [id], onDelete: Cascade)
   formId                 String
   start                  DateTime?
   end                    DateTime?
@@ -179,7 +179,7 @@ model FormSubmission {
 
 model FormSubmissionHistory {
   id       String           @id @default(uuid()) @db.Uuid
-  form     Form?            @relation(fields: [formId], references: [id])
+  form     Form?            @relation(fields: [formId], references: [id], onDelete: Cascade)
   formId   String?
   by       String
   date     DateTime         @default(now())
@@ -235,15 +235,15 @@ model FormAccess {
   createdBy   String?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime?
-  form        Form?       @relation(fields: [formId], references: [id])
+  form        Form?       @relation(fields: [formId], references: [id], onDelete: Cascade)
   formId      String?     @db.VarChar(32)
   job         String?
   location    String?
   email       String?
   level       AccessLevel
   groupId     String?     @db.Uuid
-  group       Group?      @relation(fields: [groupId], references: [id])
-  workspace   Workspace   @relation(fields: [workspaceId], references: [id])
+  group       Group?      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   workspaceId String      @db.Uuid
   filters     Json?
 

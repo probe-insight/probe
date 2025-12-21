@@ -1,22 +1,24 @@
 import express, {NextFunction, Request, Response} from 'express'
 import bodyParser from 'body-parser'
-import {getRoutes} from './Routes.js'
 import {app} from '../index.js'
 import {appConf, AppConf} from '../core/AppConf.js'
-import {genUUID} from '@infoportal/common'
-import {apiContract, HttpError} from '@infoportal/api-sdk'
+import {HttpError} from '@infoportal/api-sdk'
 import session from 'express-session'
 import {PrismaSessionStore} from '@quixo3/prisma-session-store'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import {duration} from '@axanc/ts-utils'
-import {createExpressEndpoints} from '@ts-rest/express'
 // import * as Sentry from '@sentry/node'
 // import sessionFileStore from 'session-file-store'
 import {Server as SocketIOServer} from 'socket.io'
 import {PermissionService} from '../feature/PermissionService.js'
 import {Socket} from './Socket.js'
 import {PrismaClient} from '@infoportal/prisma'
+import {RoutesExpress} from './routes/RoutesExpress.js'
+import {RoutesTsRest} from './routes/RoutesTsRest.js'
+import {ErrorHttpStatusCode} from '@ts-rest/core'
+import {ZodError} from 'zod'
+import {genUUID} from '@infoportal/common'
 
 export class Server {
   constructor(
@@ -27,35 +29,33 @@ export class Server {
     private log = app.logger('Server'),
   ) {}
 
-  readonly errorHandler = (err: HttpError, req: Request, res: Response, next: (err?: any) => void) => {
+  readonly errorHandler = (e: Error, req: Request, res: Response, next: (err?: any) => void) => {
     const errorId = genUUID().split('-')[0]
-    try {
-      if (err instanceof HttpError.Forbidden) {
-        res.status(401).json({
-          data: err.message,
-          errorId,
-        })
-      } else if (err instanceof HttpError.NotFound) {
-        res.status(404).json({
-          data: err.message,
-          errorId,
-        })
-      }
-      // console.error('[errorHandler()]', err)
-      this.log.error(
-        `[${errorId}] Error ${err.code}: ${err.message}\n${err.stack} on ${req.method} ${req.url} - ${JSON.stringify(req.body)}`,
-      )
-      console.log({data: err.code === 500 ? 'Something went wrong.' : err.message, errorId})
-      res.status(500).json({
-        data: err.message ?? 'Something went wrong.',
+
+    const statusMap = new Map<Function, ErrorHttpStatusCode>([
+      [HttpError.Conflict, 409],
+      [HttpError.Forbidden, 403],
+      [HttpError.NotFound, 404],
+      [ZodError, 400],
+    ])
+
+    const status = Array.from(statusMap.entries()).find(([ErrClass]) => e instanceof ErrClass)?.[1] ?? 500
+
+    const errorMessage =
+      e instanceof ZodError
+        ? 'ZodError: ' + e.errors.map(i => i.path.join('.')).join(', ')
+        : status + ':' + e.name + ' - ' + e.message
+
+    this.log.error(`${req.path} errorId=${errorId} - ${errorMessage}`)
+    if (status === 500) console.log(e)
+    res.status(status).json({
+      status,
+      body: {
         errorId,
-      })
-    } catch (e) {
-      res.status(500).json({
-        data: 'Something went wrong.',
-        errorId,
-      })
-    }
+        message: e.message,
+        data: (e as any)?.data,
+      },
+    })
   }
 
   readonly start = () => {
@@ -99,13 +99,15 @@ export class Server {
     this.server.use(bodyParser.json({limit: '512mb'}))
     this.server.use(bodyParser.urlencoded({extended: false}))
     if (!this.conf.production)
-      this.server.use((req, res, next) => {
+      this.server.use(function artificialNetworkDelay(req, res, next) {
         const delay = 50 + Math.random() * 200
         setTimeout(next, delay)
       })
-    const {tsRestRoutes, rawRoutes} = getRoutes(this.pgClient)
-    this.server.use(rawRoutes)
-    createExpressEndpoints(apiContract, tsRestRoutes, this.server, {logInitialization: false})
+
+    const router = express.Router()
+    new RoutesExpress(this.server, router, this.pgClient).register()
+    new RoutesTsRest(this.server, router, this.pgClient).register()
+
     // this.server.use(Sentry.Handlers.errorHandler())
     this.server.use(this.errorHandler)
     const httpServer = this.server.listen(

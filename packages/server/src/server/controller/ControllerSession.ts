@@ -2,8 +2,7 @@ import {NextFunction, Request, Response} from 'express'
 import * as yup from 'yup'
 import {PrismaClient} from '@infoportal/prisma'
 import {SessionService} from '../../feature/session/SessionService.js'
-import {HttpError, Api} from '@infoportal/api-sdk'
-import {isAuthenticated} from '../Routes.js'
+import {Api} from '@infoportal/api-sdk'
 import {appConf} from '../../core/AppConf.js'
 
 export class ControllerSession {
@@ -48,7 +47,6 @@ export class ControllerSession {
   }
 
   readonly connectAs = async (req: Request, res: Response, next: NextFunction) => {
-    if (!isAuthenticated(req)) throw new HttpError.Forbidden()
     const body = await yup
       .object({
         email: yup.string().required(),
@@ -56,7 +54,7 @@ export class ControllerSession {
       .validate(req.body)
     const spyUser = await this.service.connectAs({
       spyEmail: body.email as Api.User.Email,
-      connectedUser: req.session.app.user,
+      connectedUser: req.session.app!.user,
     })
     req.session.app = spyUser
     req.session.app.originalEmail = req.session.app.user.email

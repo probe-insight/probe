@@ -8,16 +8,22 @@ import {Util} from '../../../helper/Utils.js'
 import {genUUID, IpEvent, logPerformance} from '@infoportal/common'
 import {FormService} from '../FormService.js'
 import {nanoid} from 'nanoid'
+import {SubmissionAttachmentsService} from './SubmissionAttachmentsService.js'
+import {FormSchemaService} from '../FormSchemaService.js'
+import {SchemaInspector} from '@infoportal/form-helper'
 
 export class SubmissionService {
   constructor(
     private prisma: PrismaClient,
     private form = new FormService(prisma),
+    private schema = new FormSchemaService(prisma),
     private access = new FormAccessService(prisma),
+    private attachments = new SubmissionAttachmentsService(prisma),
     private event = app.event,
-    private log = app.logger('KoboService'),
     private conf = appConf,
-  ) {}
+    private log = app.logger('KoboService'),
+  ) {
+  }
 
   static readonly SUBMISSION_SELECT = {
     id: true,
@@ -110,11 +116,11 @@ export class SubmissionService {
                       path: [filter.column],
                       ...(v
                         ? {
-                            ['string_contains']: v,
-                          }
+                          ['string_contains']: v,
+                        }
                         : {
-                            equals: Prisma.DbNull,
-                          }),
+                          equals: Prisma.DbNull,
+                        }),
                     },
                   })),
                 ),
@@ -138,7 +144,6 @@ export class SubmissionService {
   private static readonly mapPayload = ({
     answers,
     formId,
-    attachments,
     author,
     isoCode,
     version,
@@ -149,7 +154,7 @@ export class SubmissionService {
     author?: string
     formId: Api.FormId
     isoCode?: string
-  } & Api.Submission.Payload.Submit): Prisma.FormSubmissionUncheckedCreateInput => {
+  } & Omit<Api.Submission.Payload.Submit, 'attachmentFiles'>): Prisma.FormSubmissionUncheckedCreateInput => {
     return {
       formId: formId,
       id: this.genId(),
@@ -162,7 +167,6 @@ export class SubmissionService {
       isoCode,
       submittedBy: author,
       answers,
-      attachments,
     }
   }
 
@@ -189,14 +193,15 @@ export class SubmissionService {
         return undefined
       })
   }
+
   readonly submit = async (
-    props: Api.Submission.Payload.Submit & {
+    props: Api.Submission.Payload.Submit<Express.Multer.File> & {
       workspaceId: Api.WorkspaceId
       formId: Api.FormId
       author?: string
     },
   ): Promise<Api.Submission> => {
-    const {formId, workspaceId} = props
+    const {formId, workspaceId, attachments} = props
     const form = await this.form.get(formId)
     const formVersion = await this.prisma.formVersion.findFirst({
       select: {version: true},
@@ -210,19 +215,36 @@ export class SubmissionService {
     const isoCode = await this.getIsoFromGeopoint(props.geolocation)
     return this.create({
       workspaceId,
+      attachmentFiles: attachments,
+      formId,
       data: SubmissionService.mapPayload({...props, version: 'v' + formVersion.version, isoCode}),
     })
   }
 
   readonly create = async ({
+    formId,
     workspaceId,
     data,
+    attachmentFiles = [],
   }: {
+    formId: Api.FormId
+    attachmentFiles?: Express.Multer.File[]
     workspaceId: Api.WorkspaceId
     data: Prisma.FormSubmissionUncheckedCreateInput
   }): Promise<Api.Submission> => {
-    const submission = await this.prisma.formSubmission
-      .create({
+    const submissionId = data.id as Api.SubmissionId
+    const fileNameToXPath = await this.schema.get({formId}).then(HttpError.throwNotFoundIfUndefined()).then(_ => {
+      const schemaInspector = new SchemaInspector(_)
+      return seq(Obj.entries(data)).map(([question, answer]) => {
+        const isFile = attachmentFiles.some(_ => _.originalname === answer)
+        if (!isFile) return
+        return [answer, schemaInspector.lookup.questionIndex[question]?.$xpath] as [string, string]
+      }).compact().reduceObject<Record<string, string>>(_ => _)
+    })
+
+    try {
+      const attachments = await this.attachments.save({formId, fileNameToXPath, submissionId, attachmentFiles})
+      const submission = (await this.prisma.formSubmission.create({
         select: {
           id: true,
           start: true,
@@ -235,11 +257,17 @@ export class SubmissionService {
           answers: true,
           attachments: true,
         },
-        data: data,
-      })
-      .then(_ => _ as Api.Submission)
-    this.event.emit(IpEvent.SUBMISSION_NEW, {workspaceId, formId: data.formId as Api.FormId, submission})
-    return submission
+        data: {
+          ...data,
+          attachments,
+        },
+      })) as Api.Submission
+      this.event.emit(IpEvent.SUBMISSION_NEW, {workspaceId, formId, submission})
+      return submission
+    } catch (error) {
+      await this.attachments.removeForSubmission({formId, submissionId})
+      throw error
+    }
   }
 
   readonly createMany = ({

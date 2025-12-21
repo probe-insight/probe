@@ -35,5 +35,6 @@ export namespace IpEventParams {
     formId: Api.FormId
     workspaceId: Api.WorkspaceId
     submission: Api.Submission
+    attachments?: Express.Multer.File[]
   }
 }

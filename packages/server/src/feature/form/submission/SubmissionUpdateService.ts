@@ -11,6 +11,7 @@ import {app} from '../../../index.js'
 import {KoboSdkGenerator} from '../../kobo/KoboSdkGenerator.js'
 import {FormService} from '../FormService.js'
 import {IpEvent} from '@infoportal/common'
+import {SubmissionAttachmentsService} from './SubmissionAttachmentsService.js'
 
 const RETRIES = 3
 const RETRY_BASE_MS = 200
@@ -22,6 +23,7 @@ export class SubmissionUpdateService {
   constructor(
     private prisma: PrismaClient,
     private history = new SubmissionHistoryService(prisma),
+    private attachments = new SubmissionAttachmentsService(prisma),
     private sdkGenerator = KoboSdkGenerator.getSingleton(prisma),
     private event = app.event,
     private form = new FormService(prisma),
@@ -123,16 +125,16 @@ export class SubmissionUpdateService {
       if (value == null || value === '') {
         // remove key from jsonb
         await tx.$executeRaw`
-          UPDATE "FormSubmission"
-          SET answers = answers - ${question}
-          WHERE id IN (${Prisma.join(submissionIds)})
+            UPDATE "FormSubmission"
+            SET answers = answers - ${question}
+            WHERE id IN (${Prisma.join(submissionIds)})
         `
       } else {
         await tx.$executeRawUnsafe(
           `
-            UPDATE "FormSubmission"
-            SET answers = jsonb_set(answers, ARRAY[$1], to_jsonb($2::text))
-            WHERE id = ANY ($3::text[])
+              UPDATE "FormSubmission"
+              SET answers = jsonb_set(answers, ARRAY[$1], to_jsonb($2::text))
+              WHERE id = ANY ($3::text[])
           `,
           question,
           value,
@@ -263,6 +265,10 @@ export class SubmissionUpdateService {
 
     this.event.emit(IpEvent.SUBMISSION_REMOVED, {submissionIds: submissionIds, formId})
 
+    const removeAttachmentsProcess$ = Promise.all(
+      submissionIds.map(submissionId => this.attachments.removeForSubmission({formId, submissionId})),
+    )
+
     // Kobo delete
     const ctx = await this.getKoboContextSafe(formId, submissionIds)
     if (ctx) {
@@ -277,7 +283,7 @@ export class SubmissionUpdateService {
         authorEmail,
       )
     }
-
+    await removeAttachmentsProcess$
     return submissionIds.map(id => ({id, status: 'success'}))
   }
 

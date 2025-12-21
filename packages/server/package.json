@@ -10,7 +10,7 @@
     "build": "node --loader ts-node/esm ../../node_modules/webpack/bin/webpack.js --config webpack.config.mjs",
     "dev:r": "nodemon src/index.ts",
     "dev:hmr": "tsx watch src/index.ts",
-    "dev": "tsc --build --force && node dist/index.js",
+    "dev": "tsc && node dist/index.js",
     "dev-BROKEN": "ts-node src/index.ts",
     "debug": "npm run build && node --inspect-brk dist/index.js"
   },

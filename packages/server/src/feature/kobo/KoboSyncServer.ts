@@ -49,7 +49,8 @@ export class KoboSyncServer {
     private appCache = app.cache,
     private conf = appConf,
     private log: AppLogger = app.logger('KoboSyncServer'),
-  ) {}
+  ) {
+  }
 
   private static readonly mapAnswer = (formId: Api.FormId, k: Kobo.Submission.Raw): KoboInsert => {
     const {
@@ -111,7 +112,7 @@ export class KoboSyncServer {
     connectedForms.map(_ => {
       const answers = KoboSyncServer.mapAnswer(_.id, _answer)
       return this.service.create({
-        // formId: _.id,
+        formId: _.id,
         workspaceId: _.workspaceId as Api.WorkspaceId,
         data: answers,
       })

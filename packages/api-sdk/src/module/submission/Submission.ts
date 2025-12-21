@@ -19,7 +19,12 @@ export namespace Submission {
     return _
   }
 
-  export type Attachment = Kobo.Submission.Attachment
+  export type Attachment = Kobo.Submission.Attachment & {
+    source?: 'internal'
+    // TODO TO add in Kobo-sdk
+    media_file_basename: string
+  }
+
   export type Validation = Prisma.FormSubmissionValidation
   export const Validation = {
     Approved: 'Approved',
@@ -57,10 +62,10 @@ export namespace Submission {
   }
 
   export namespace Payload {
-    export type Submit = {
+    export type Submit<ATTACHMENT = any> = {
       workspaceId: WorkspaceId
       formId: FormId
-      attachments: any[]
+      attachments: ATTACHMENT[]
       answers: object
       geolocation?: Geolocation
     }

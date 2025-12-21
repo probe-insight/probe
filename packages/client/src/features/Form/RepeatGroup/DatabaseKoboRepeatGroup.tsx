@@ -13,6 +13,8 @@ import {TabContent} from '@/shared/Tab/TabContent.js'
 import {buildDbColumns, defaultColWidth, OnRepeatGroupClick} from '@infoportal/database-column'
 import {getKoboAttachmentUrl} from '@/core/KoboAttachmentUrl.js'
 import {UseQuerySchema} from '@/core/query/form/useQuerySchema'
+import {ColumnQuestionProps} from '@infoportal/database-column/dist/columns/type'
+import {useAppSettings} from '@/core/context/ConfigContext'
 
 export const databaseKoboRepeatRoute = createRoute({
   getParentRoute: () => formRoute,
@@ -68,6 +70,7 @@ const DatabaseKoboRepeat = ({
   group: string
   inspector: SchemaInspector
 }) => {
+  const {apiv2} = useAppSettings()
   const t = useTheme()
   const {m} = useI18n()
 
@@ -84,6 +87,8 @@ const DatabaseKoboRepeat = ({
       inspector: inspector,
       t,
       m,
+      getFileUrl: ({fileName, formId, submissionId}) =>
+        fileName && apiv2.submission.getAttachmentUrl({workspaceId, formId, submissionId, fileName}),
       onRepeatGroupClick: _ =>
         navigate({
           to: '/$workspaceId/form/$formId/group/$group',
@@ -165,11 +170,13 @@ export function getColumnsForRepeatGroup({
   formId,
   inspector,
   onRepeatGroupClick,
+  getFileUrl,
   m,
   t,
 }: {
   groupName: string
   formId: Api.FormId
+  getFileUrl: ColumnQuestionProps['getFileUrl']
   inspector: SchemaInspector
   onRepeatGroupClick?: OnRepeatGroupClick
   m: Messages
@@ -198,7 +205,7 @@ export function getColumnsForRepeatGroup({
     buildDbColumns.meta.id(),
     buildDbColumns.meta.submissionTime({m}),
     ...buildDbColumns.question.byQuestions({
-      getFileUrl: getKoboAttachmentUrl,
+      getFileUrl,
       formId,
       questions: groupInfo.questions,
       onRepeatGroupClick,
