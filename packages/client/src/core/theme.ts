@@ -194,7 +194,7 @@ export const muiTheme = ({
             fontSize: '1rem',
             lineHeight,
             boxSizing: 'border-box',
-            background: 'url(/bg2.png)',
+            background: 'url(/bg2.min.png)',
             backgroundSize: 'cover',
             backgroundColor: 'var(--mui-palette-background-default)',
             backgroundRepeat: 'no-repeat',

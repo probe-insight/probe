@@ -1,6 +1,6 @@
 .root {
-  font-size: 2.2em;
-  font-weight: bold;
+  font-size: 2.5em;
+  font-weight: 500;
   text-align: center;
   margin-top: 0;
   margin-bottom: calc(var(--mui-spacing) * 1.5);

@@ -8,7 +8,7 @@ import Hub from '@mui/icons-material/HubTwoTone'
 import ElectricBolt from '@mui/icons-material/ElectricBoltTwoTone'
 import Group from '@mui/icons-material/GroupTwoTone'
 import RocketLaunch from '@mui/icons-material/RocketLaunchTwoTone'
-import {Animate, AnimateList} from '@infoportal/client-core'
+import {Animate} from '@infoportal/client-core'
 
 // '#2196F3',
 //   '#FF9800',

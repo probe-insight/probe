@@ -22,11 +22,10 @@ export const theme = createTheme({
   colorSchemes: {
     light: {
       palette: {
-        warning: orange,
-        success: green,
         primary: {main: colorPrimary},
         secondary: {main: colorPrimary},
-        error: red,
+        error: {main: '#d32f2f'},
+        // success: {main: '#2e7b32'},
         action: {
           focus: alphaVar(colorPrimary, 0.1),
           focusOpacity: 0.1,

@@ -3,9 +3,9 @@
   /*align-items: center;*/
   background: url(/ss1.png);
   background-size: cover;
-  height: 300px;
+  height: 400px;
   position: relative;
-  padding: calc(var(--mui-spacing) * 2);
+  padding: calc(var(--mui-spacing) * 3) calc(var(--mui-spacing) * 2);
   margin: var(--mui-spacing) var(--section-padding);
   border-radius: 20px;
   overflow: hidden;
@@ -24,22 +24,37 @@
   flex: 1;
   text-align: center;
   backdrop-filter: blur(4px);
-  background-color: rgba(0, 10, 20, .7);
+  /*background-color: rgba(0, 5, 10, .7);*/
+  /*background: linear-gradient(*/
+  /*  180deg,*/
+  /*  rgba(12, 32, 68, 0.8) 0%,*/
+  /*  rgba(6, 18, 38, 0.95) 100%*/
+  /*);*/
+  background: radial-gradient(
+    80% 60% at 50% 20%,
+    rgba(13, 50, 120, 0.6) 0%,
+    rgba(2, 12, 27, 0.9) 70%
+  );
+  /*background: linear-gradient(*/
+  /*  180deg,*/
+  /*  rgba(17, 34, 64, 0.85) 0%,*/
+  /*  rgba(0, 0, 0, 0.95) 100%*/
+  /*);*/
   /*background: rgb(from var(--mui-palette-background-paper) r g b / .7)*/
 }
 
 .title {
-  font-family: monospace;
+  /*font-family: monospace;*/
   font-weight: bold;
-  font-size: 2.2rem;
+  font-size: 2.6rem;
   /*color: rgba(255, 255, 255, 0.8);*/
   /*color: var(--mui-palette-text-secondary)*/
 }
 
 .desc {
   font-weight: 400;
-  font-size: 1.8rem;
-  margin-bottom: var(--mui-spacing);
+  font-size: 2rem;
+  margin-bottom: calc(var(--mui-spacing) * 2);
   /*color: var(--mui-palette-text-secondary)*/
 }
 
@@ -53,4 +68,28 @@
   flex: 1;
   margin: auto;
 
+}
+
+.keys {
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: var(--mui-spacing);
+  margin-bottom: calc(var(--mui-spacing) * 3);
+}
+
+.key {
+  opacity: .8;
+  /*color: var(--mui-palette-text-secondary);*/
+  border: 1px solid rgba(255, 255, 255, .08);
+  /*backdrop-filter: blur(4px);*/
+  background-color: rgba(255, 255, 255, .05);
+  padding: calc(var(--mui-spacing) / 4) var(--mui-spacing);
+  border-radius: 40px;
+  font-weight: 500;
+  /*box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.1), 0px 1px 1px 0px rgba(0, 0, 0, 0.08), 0px 1px 3px 0px rgba(0, 0, 0, 0.06);;*/
+}
+
+.arrow {
+  color: rgba(255, 255, 255, .3);
 }

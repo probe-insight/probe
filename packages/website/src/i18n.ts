@@ -1,7 +1,20 @@
-const appName = 'NexusPortal'
+import SyncProblem from '@mui/icons-material/SyncProblem'
+import Hub from '@mui/icons-material/Hub'
+import ShieldLock from '@mui/icons-material/Shield'
+import ManageAccounts from '@mui/icons-material/ManageAccounts'
+import Speed from '@mui/icons-material/Speed'
+import Schema from '@mui/icons-material/Schema'
+import DashboardCustomize from '@mui/icons-material/DashboardCustomize'
+import AccountTree from '@mui/icons-material/Route'
+
+const appTitle = 'InfoPortal'
 export const m = {
-  title: appName,
-  desc: 'The next generation of data collection & management software.',
+  title: appTitle,
+  // desc: 'The next generation of data collection & management software.',
+  desc: 'Turn data into decisions',
+  key1: 'Collect & Import',
+  key2: 'Transform & Manage',
+  key3: 'Visualize & Analyze',
   cta: 'Try for free',
   logoAlt: appName + ' logo',
   blog: 'Blog',
@@ -16,7 +29,7 @@ export const m = {
     },
     organization: {
       title: `Built for Organizations`,
-      desc: `Invite colleagues, manage roles, and ensure resilient access rules <b>automatically up-to-date<b> with your organization.`,
+      desc: `Invite colleagues and ensure resilient access rules <b>automatically up-to-date<b> with your organization.`,
     },
     moreToCome: {
       title: `This Is Just the Beginning`,
@@ -25,8 +38,82 @@ export const m = {
   },
   features: {},
   overviewTitle: 'Overview',
+  comparisonTitle: 'Where reporting tools fall short',
+  comparison: {
+    sync: {
+      icon: SyncProblem,
+      title: 'Fragile synchronization',
+      problem: 'Synchronization of data and dashboards relies on fragile manual processes.',
+      solution: 'All data, transformations and dashboards live in one system.',
+    },
+    traceability: {
+      icon: AccountTree,
+      title: 'Lack of traceability',
+      problem: 'Hard to understand where figures come from and to reproduce calculations.',
+      solution: 'Every figure is traceable, reproducible, and linked to its source data and logic.',
+    },
+    dataScattered: {
+      icon: Hub,
+      title: 'Scattered data',
+      problem: 'Data is spread across sources, preventing a consistent global view.',
+      solution: 'All sources are unified into a single global view.',
+    },
+    dataAccessFine: {
+      icon: ShieldLock,
+      title: 'Data protection risks',
+      problem: 'Sensitive data cannot be reliably restricted to the right roles.',
+      solution: 'Access stays aligned with organizational roles over time.',
+    },
+    dataAccessUpdate: {
+      icon: ManageAccounts,
+      title: 'Access drift',
+      problem: 'Access rules become outdated due to team turnover.',
+      solution: 'Access can be defined per dataset or view.',
+    },
+    performances: {
+      icon: Speed,
+      title: 'Poor scalability',
+      problem: 'Reporting tools slow down as data volumes grow.',
+      solution: 'Performance remains fast and stable at scale.',
+    },
+    transformations: {
+      icon: Schema,
+      title: 'Fragile data processing',
+      problem: 'Data processing is limited and break as forms evolve.',
+      solution: 'Data processing handles form changes without rework, even for complex cases.',
+    },
+    dashboardInconsistent: {
+      icon: DashboardCustomize,
+      title: 'Inconsistent dashboards',
+      problem: 'Dashboards are inconsistent and must be duplicated for translations.',
+      solution: 'Dashboards follow shared rules and support multiple languages.',
+    },
+  },
+  // problem: {
+  //   title: 'Problems',
+  //   sync: 'Keeping databases, views and dashboards synchronized is fragile and hard to automate.',
+  //   dataScattered: 'Data is spread across multiple sources, making a consistent global view difficult.',
+  //   dataAccessUpdate: 'Access rules become outdated over time due to team turnover.',
+  //   dataAccessFine: 'Fine-grained access control per role is hard to maintain on the same dataset.',
+  //   performances: 'Reporting tools become slow and unstable as data volumes grows.',
+  //   transformations: 'Data transformations and calculations are fragile and hard to maintain as forms change.',
+  //   dashboardInconsistent: 'Dashboard designs are inconsistent and require duplication to handle multiple languages.',
+  // },
+  // solution: {
+  //   title: 'Solutions',
+  //   sync: 'All data, transformations and dashboards live in a single, centralized system.',
+  //   dataScattered: 'Multiple data sources are unified into one consistent and reliable global view.',
+  //   dataAccessUpdate: 'Access is managed centrally and stays aligned with organizational roles.',
+  //   dataAccessFine: 'Access can be defined for specific parts of the dataset.',
+  //   performances: 'By avoiding chained tools and exports, performance remains fast and stable as data grows.',
+  //   transformations:
+  //     'Data transformations remain robust as forms evolve, without relying on fragile, tool-specific formulas.',
+  //   dashboardInconsistent:
+  //     'Dashboards are built from shared rules and structures, ensuring consistency and easy multilingual support.',
+  // },
+
   overview_: {
-    xls: {title: 'Built on XLS Form', desc: 'The most powerful open standard to design surveys with complex logic.'},
+    xls: {title: 'Built on XLS Form', desc: 'The most flexible open standard to design surveys with complex logic.'},
     database: {
       title: 'Full control of your data',
       desc: 'A powerful, intuitive interface to manage, clean, and organize your information.',

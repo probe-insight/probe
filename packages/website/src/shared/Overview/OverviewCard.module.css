@@ -6,6 +6,13 @@
   margin-bottom: calc(var(--mui-spacing) * 2);
 }
 
+.imageContainer {
+  border-radius: var(--mui-radius);
+  padding: var(--mui-spacing);
+}
+
+.image {}
+
 .content {
   max-width: 400px;
   margin-left: calc(var(--mui-spacing) * -2);
