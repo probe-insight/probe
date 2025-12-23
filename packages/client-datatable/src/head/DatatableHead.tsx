@@ -13,6 +13,7 @@ export const DatatableHead = (
   const dispatch = useCtx(_ => _.dispatch)
   const columns = useCtx(_ => _.columns.visible)
   const moduleColumnsResize = useCtx(_ => _.module?.columnsResize ?? {enabled: true})
+  const canSelect = useCtx(_ => _.module?.cellSelection?.enabled)
   const colWidths = useCtx(_ => _.columns.widths)
   const sortBy = useCtx(_ => _.state.sortBy)
   const filters = useCtx(_ => _.state.filters)
@@ -29,7 +30,7 @@ export const DatatableHead = (
       <div className="dtrh">
         {columns.map((c, columnIndex) => (
           <Cell
-            onClick={e => selectColumn(columnIndex, e)}
+            onClick={canSelect ? e => selectColumn(columnIndex, e) : undefined}
             title={c.head}
             style={{width: colWidths[c.id]}}
             className={'dth ' + getColumnClassName(c)}

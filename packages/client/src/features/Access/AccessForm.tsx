@@ -54,7 +54,7 @@ export const AccessForm = ({workspaceId, form}: {workspaceId: Api.WorkspaceId; f
             <Core.RadioGroup
               sx={{mb: 2}}
               dense
-              error={!!form.formState.errors.selectBy}
+              // error={!!form.formState.errors.selectBy}
               {...field}
               onChange={e => {
                 form.setValue('job', null)

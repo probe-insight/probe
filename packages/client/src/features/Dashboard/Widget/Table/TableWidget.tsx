@@ -154,7 +154,7 @@ export function TableWidget({widget}: {widget: Api.Dashboard.Widget}) {
       columns={[
         {
           id: 'row',
-          head: schemaInspector.translate.question(config.row.questionName),
+          head: config.row.i18n_label?.[langIndex] ?? schemaInspector.translate.question(config.row.questionName),
           type: 'select_one',
           renderQuick: _ => _.row,
           // group: {

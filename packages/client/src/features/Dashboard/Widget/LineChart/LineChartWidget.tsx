@@ -8,7 +8,7 @@ import {Box} from '@mui/material'
 import {Api} from '@infoportal/api-sdk'
 import {useMemo} from 'react'
 
-const legendOffset = 5
+const legendOffset = 6
 
 export const LineChartWidget = ({widget}: {widget: Api.Dashboard.Widget}) => {
   const config = useMemo(() => {

@@ -67,6 +67,11 @@ function DatabaseHistory() {
           data={queryHistory.data}
           contentProps={{sx: {maxHeight: 'calc(100vh - 156px)'}}}
           id={`kobo-answer-history${form.id}`}
+          module={{
+            columnsToggle: {
+              enabled: true,
+            },
+          }}
           columns={[
             // {
             //   type: 'string',

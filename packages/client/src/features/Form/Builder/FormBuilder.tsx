@@ -56,14 +56,14 @@ function FormBuilder() {
   const queryForm = UseQueryForm.get({workspaceId, formId})
   const queryVersion = useQueryVersion({workspaceId, formId})
   const queryPermission = UseQueryPermission.form({workspaceId, formId})
-  const [showPreview, setShowPreview] = useState(true)
+  const [showPreview, setShowPreview] = useState(false)
 
   const versions = useMemo(() => {
     return {
       all: queryVersion.get.data!,
       active: queryVersion.get.data?.find(_ => _.status === 'active'),
       draft: queryVersion.get.data?.find(_ => _.status === 'draft'),
-      last: seq(queryVersion.get.data).last(),
+      last: queryVersion.get.data?.[0],
     }
   }, [queryVersion.get.data])
 
